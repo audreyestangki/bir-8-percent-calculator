@@ -1,0 +1,12 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Design & reference files (not part of the app)
+*.pdf
+*.docx
+*.jpg
+*.png
+*.svg
+*.txt
+screencapture*
