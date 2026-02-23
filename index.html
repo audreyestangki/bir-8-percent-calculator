@@ -3,606 +3,804 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VibeTax – 8% Tax Calculator for Filipino Freelancers</title>
+  <title>Freelipino – 8% Tax Calculator for Filipino Freelancers</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
-    /* ─── Reset & Base ─────────────────────────────────────────────────────── */
+    /* ─── Reset ──────────────────────────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    /* ─── Design Tokens ──────────────────────────────────────────────────────── */
+    :root {
+      --navy:     #304258;
+      --pink:     #f3608c;
+      --gray-bg:  #f6f6f6;
+      --green-bg: #e6ffdd;
+      --border:   #97a2af;
+      --muted:    #586472;
+      --white:    #ffffff;
+    }
+
+    /* ─── Base ───────────────────────────────────────────────────────────────── */
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background: #f5f7fa;
-      color: #111827;
+      font-family: 'Nunito', sans-serif;
+      background: var(--white);
+      color: var(--navy);
       min-height: 100vh;
     }
 
-    /* ─── Header ───────────────────────────────────────────────────────────── */
-    .header {
-      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-      color: white;
-      padding: 36px 20px 32px;
+    /* ─── Header ─────────────────────────────────────────────────────────────── */
+    .page-header {
+      padding: 100px 100px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 19px;
       text-align: center;
     }
 
-    .header h1 {
-      font-size: 2rem;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      margin-bottom: 6px;
+    .page-header h1 {
+      font-size: 48px;
+      font-weight: 400;
+      color: var(--navy);
+      line-height: 1.2;
     }
 
-    .header p {
-      font-size: 1rem;
-      opacity: 0.85;
-      margin-bottom: 16px;
-    }
-
-    .more-info-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(255, 255, 255, 0.18);
-      border: 1px solid rgba(255, 255, 255, 0.45);
-      color: white;
-      border-radius: 20px;
-      padding: 7px 16px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .more-info-btn:hover { background: rgba(255, 255, 255, 0.28); }
-
-    /* ─── Layout ───────────────────────────────────────────────────────────── */
-    .container {
-      max-width: 640px;
-      margin: 0 auto;
-      padding: 24px 16px 56px;
-    }
-
-    /* ─── Card ─────────────────────────────────────────────────────────────── */
-    .card {
-      background: white;
-      border-radius: 16px;
-      padding: 24px;
-      margin-bottom: 16px;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07), 0 0 0 1px rgba(0,0,0,0.04);
-    }
-
-    .card-label {
-      font-size: 0.7rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.9px;
-      color: #9ca3af;
-      margin-bottom: 18px;
-    }
-
-    /* ─── Monthly Inputs ───────────────────────────────────────────────────── */
-    .monthly-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      margin-bottom: 20px;
-    }
-
-    .input-group { display: flex; flex-direction: column; gap: 5px; }
-
-    .input-group label {
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: #374151;
-    }
-
-    .input-wrapper { position: relative; }
-
-    .currency-prefix {
-      position: absolute;
-      left: 11px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 0.88rem;
-      color: #9ca3af;
-      font-weight: 500;
-      pointer-events: none;
-      user-select: none;
-    }
-
-    .input-group input[type="number"] {
-      width: 100%;
-      padding: 10px 10px 10px 26px;
-      border: 1.5px solid #e5e7eb;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      color: #111827;
-      background: white;
-      transition: border-color 0.18s, box-shadow 0.18s;
-      /* Remove native spinners */
-      -moz-appearance: textfield;
-    }
-
-    .input-group input[type="number"]::-webkit-outer-spin-button,
-    .input-group input[type="number"]::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-    }
-
-    .input-group input[type="number"]:focus {
-      outline: none;
-      border-color: #4f46e5;
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
-    }
-
-    .input-group input[type="number"].input-error {
-      border-color: #ef4444;
-      background: #fff5f5;
-    }
-
-    .field-error {
-      font-size: 0.72rem;
-      color: #ef4444;
-      min-height: 14px;
-      display: block;
-    }
-
-    /* ─── Compute Button ───────────────────────────────────────────────────── */
-    .compute-btn {
-      width: 100%;
-      padding: 15px;
-      background: linear-gradient(135deg, #4f46e5, #7c3aed);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      letter-spacing: 0.2px;
-      transition: opacity 0.2s, transform 0.12s, box-shadow 0.2s;
-      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
-    }
-
-    .compute-btn:hover:not(:disabled) {
-      opacity: 0.93;
-      transform: translateY(-1px);
-      box-shadow: 0 6px 18px rgba(79, 70, 229, 0.4);
-    }
-
-    .compute-btn:active:not(:disabled) { transform: translateY(0); }
-
-    .compute-btn:disabled {
-      opacity: 0.38;
-      cursor: not-allowed;
-      box-shadow: none;
-      transform: none;
-    }
-
-    /* ─── Results ──────────────────────────────────────────────────────────── */
-    #results { display: none; }
-
-    /* Status badge */
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-weight: 700;
-      font-size: 0.88rem;
-      margin-bottom: 18px;
-    }
-
-    .badge-eligible   { background: #d1fae5; color: #065f46; }
-    .badge-ineligible { background: #fee2e2; color: #991b1b; }
-
-    /* Summary rows */
-    .summary-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      padding: 10px 0;
-      border-bottom: 1px solid #f3f4f6;
-      gap: 12px;
-    }
-
-    .summary-row:last-child { border-bottom: none; }
-
-    .row-label {
-      font-size: 0.88rem;
-      color: #6b7280;
-      flex-shrink: 0;
-    }
-
-    .row-value {
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: #111827;
-      text-align: right;
-    }
-
-    .row-value.accent  { color: #4f46e5; font-size: 1.08rem; }
-    .row-value.deduct  { color: #ef4444; }
-
-    /* Table */
-    .table-wrapper { overflow-x: auto; margin: 0 -4px; }
-
-    table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
-
-    thead th {
-      background: #f9fafb;
-      padding: 10px 12px;
-      text-align: right;
-      font-size: 0.72rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      color: #9ca3af;
-      border-bottom: 1.5px solid #e5e7eb;
-      white-space: nowrap;
-    }
-
-    thead th:first-child { text-align: left; }
-
-    tbody td {
-      padding: 11px 12px;
-      text-align: right;
-      color: #374151;
-      border-bottom: 1px solid #f3f4f6;
-    }
-
-    tbody td:first-child {
-      text-align: left;
-      font-weight: 700;
-      color: #111827;
-    }
-
-    tbody tr:last-child td { border-bottom: none; }
-    tbody tr:hover { background: #fafafa; }
-
-    .td-tax { font-weight: 700; color: #4f46e5; }
-
-    /* Deadlines */
-    .deadline-list { list-style: none; }
-
-    .deadline-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 0;
-      border-bottom: 1px solid #f3f4f6;
-      gap: 12px;
-    }
-
-    .deadline-item:last-child { border-bottom: none; }
-
-    .deadline-quarter {
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: #374151;
-    }
-
-    .deadline-date {
-      font-size: 0.85rem;
-      color: #6b7280;
-      text-align: right;
-    }
-
-    /* Not eligible card */
-    .card-warning {
-      background: #fff7ed;
-      border: 1.5px solid #fed7aa;
-    }
-
-    .warning-explanation {
-      font-size: 0.9rem;
-      color: #92400e;
-      line-height: 1.65;
-      margin-top: 4px;
-    }
-
-    .consult-tip {
-      margin-top: 14px;
-      background: #fef3c7;
-      border-radius: 10px;
-      padding: 12px 14px;
-      font-size: 0.85rem;
-      color: #78350f;
+    .page-header p {
+      font-size: 18px;
+      font-weight: 400;
+      color: var(--navy);
+      max-width: 790px;
       line-height: 1.6;
     }
 
-    /* Export button */
-    .export-btn {
-      width: 100%;
-      padding: 13px;
-      background: white;
-      color: #4f46e5;
-      border: 2px solid #4f46e5;
-      border-radius: 12px;
-      font-size: 0.95rem;
-      font-weight: 700;
-      cursor: pointer;
+    /* ─── Main Layout ────────────────────────────────────────────────────────── */
+    .main {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: stretch;
+      padding: 40px 100px 80px;
+      gap: 40px;
+    }
+
+    /* ─── Input Panel (Left) ──────────────────────────────────────────────────── */
+    #input-panel {
+      flex: 1;
+      background: var(--gray-bg);
+      border-radius: 8px;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .input-panel-intro {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--navy);
+      line-height: 1.5;
+    }
+
+    /* Two-column month grid */
+    #monthly-grid {
+      display: flex;
+      flex-direction: row;
+      gap: 100px;
+    }
+
+    .month-col {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .month-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .month-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--navy);
+    }
+
+    /* ₱ + number input box */
+    .input-wrapper {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 16px;
+      width: 180px;
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
       gap: 8px;
-      transition: background 0.18s, transform 0.12s;
-      margin-bottom: 16px;
+      transition: border-color 0.18s, box-shadow 0.18s;
     }
 
-    .export-btn:hover { background: #eff6ff; transform: translateY(-1px); }
-    .export-btn:active { transform: translateY(0); }
-
-    /* ─── Disclaimer ───────────────────────────────────────────────────────── */
-    .disclaimer {
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
-      padding: 16px 18px;
-      font-size: 0.78rem;
-      color: #6b7280;
-      line-height: 1.65;
+    .input-wrapper:focus-within {
+      border-color: var(--pink);
+      box-shadow: 0 0 0 3px rgba(243, 96, 140, 0.12);
     }
 
-    .disclaimer strong { color: #374151; }
-
-    /* ─── Modal ────────────────────────────────────────────────────────────── */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 200;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
+    .peso-sym {
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--muted);
+      user-select: none;
+      flex-shrink: 0;
     }
 
-    .modal-overlay.open { display: flex; }
-
-    .modal {
-      background: white;
-      border-radius: 20px;
-      padding: 28px 28px 24px;
-      max-width: 480px;
+    .input-wrapper input[type="number"] {
+      border: none;
+      outline: none;
+      background: transparent;
+      font-family: 'Nunito', sans-serif;
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--navy);
       width: 100%;
-      max-height: 88vh;
-      overflow-y: auto;
+      text-align: right;
+      -moz-appearance: textfield;
     }
 
-    .modal h2 {
-      font-size: 1.15rem;
-      font-weight: 800;
-      margin-bottom: 14px;
-      color: #111827;
+    .input-wrapper input[type="number"]::-webkit-outer-spin-button,
+    .input-wrapper input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
     }
 
-    .modal p {
-      font-size: 0.9rem;
-      color: #374151;
-      line-height: 1.7;
-      margin-bottom: 12px;
-    }
-
-    .modal ul {
-      padding-left: 20px;
-      margin-bottom: 14px;
-    }
-
-    .modal ul li {
-      font-size: 0.9rem;
-      color: #374151;
-      line-height: 1.7;
-      margin-bottom: 3px;
-    }
-
-    .modal-source {
-      font-size: 0.75rem;
-      color: #9ca3af;
+    /* Action buttons */
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
       margin-top: 4px;
     }
 
-    .modal-close-btn {
+    .btn-compute {
+      background: var(--pink);
+      border: 1px solid var(--pink);
+      border-radius: 8px;
+      padding: 16px 24px;
       width: 100%;
-      margin-top: 10px;
-      padding: 13px;
-      background: linear-gradient(135deg, #4f46e5, #7c3aed);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-size: 0.95rem;
-      font-weight: 700;
+      font-family: 'Nunito', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--white);
       cursor: pointer;
+      transition: opacity 0.18s, transform 0.12s;
+    }
+
+    .btn-compute:hover  { opacity: 0.9; transform: translateY(-1px); }
+    .btn-compute:active { opacity: 0.8; transform: translateY(0); }
+
+    .btn-reset {
+      background: transparent;
+      border: none;
+      width: 100%;
+      font-family: 'Nunito', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--pink);
+      cursor: pointer;
+      padding: 10px;
       transition: opacity 0.18s;
     }
 
-    .modal-close-btn:hover { opacity: 0.9; }
+    .btn-reset:hover { opacity: 0.7; }
 
-    /* ─── Responsive ───────────────────────────────────────────────────────── */
-    @media (max-width: 420px) {
-      .header h1 { font-size: 1.6rem; }
-      table { font-size: 0.8rem; }
-      thead th, tbody td { padding: 9px 8px; }
+    /* ─── Result Panel (Right) ────────────────────────────────────────────────── */
+    #result-panel {
+      width: 618px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    #result-card {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ─── State: Initial ─────────────────────────────────────────────────────── */
+    .panel-initial {
+      flex: 1;
+      background: var(--gray-bg);
+      border-radius: 8px;
+      min-height: 360px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 48px 48px;
+      gap: 16px;
+    }
+
+    .panel-initial h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    .panel-initial p {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--navy);
+      line-height: 1.7;
+    }
+
+    /* ─── State: Error ───────────────────────────────────────────────────────── */
+    .panel-error {
+      flex: 1;
+      background: var(--gray-bg);
+      border-radius: 8px;
+      min-height: 360px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 48px 48px;
+      gap: 16px;
+    }
+
+    .panel-error h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    .panel-error p {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--navy);
+      line-height: 1.7;
+    }
+
+    /* ─── State: Not Eligible ────────────────────────────────────────────────── */
+    .panel-not-eligible {
+      flex: 1;
+      background: var(--green-bg);
+      border-radius: 8px;
+      min-height: 360px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 48px 48px;
+      gap: 16px;
+    }
+
+    .panel-not-eligible .party-emoji {
+      font-size: 40px;
+      line-height: 1;
+    }
+
+    .panel-not-eligible h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    .panel-not-eligible .income-line {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--navy);
+    }
+
+    .panel-not-eligible hr {
+      width: 80%;
+      border: none;
+      border-top: 1px solid rgba(48, 66, 88, 0.18);
+    }
+
+    .panel-not-eligible .explanation {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--navy);
+      line-height: 1.7;
+      max-width: 460px;
+    }
+
+    .panel-not-eligible .consult-bold {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--navy);
+      line-height: 1.7;
+      max-width: 460px;
+    }
+
+    /* ─── State: Eligible ────────────────────────────────────────────────────── */
+    .panel-eligible {
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
+
+    /* Green banner */
+    .eligible-banner {
+      background: var(--green-bg);
+      border-radius: 8px;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      text-align: center;
+    }
+
+    .banner-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .banner-title span {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    .banner-income {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--navy);
+    }
+
+    /* Tabs section */
+    .tabs-section {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      padding: 12px 24px;
+      border-radius: 100px;
+      border: none;
+      font-family: 'Nunito', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s;
+      white-space: nowrap;
+    }
+
+    .tab-btn.active {
+      background: var(--pink);
+      color: var(--white);
+    }
+
+    .tab-btn.inactive {
+      background: transparent;
+      color: var(--navy);
+    }
+
+    .tab-btn.inactive:hover {
+      background: rgba(48, 66, 88, 0.06);
+    }
+
+    /* Quarterly rows */
+    .quarterly-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .quarter-row {
+      background: var(--gray-bg);
+      min-height: 70px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px;
+    }
+
+    .q-left {
+      width: 240px;
+      flex-shrink: 0;
+    }
+
+    .q-title {
+      font-size: 18px;
+      font-weight: 400;
+      color: var(--navy);
+      line-height: 1.3;
+    }
+
+    .q-title strong { font-weight: 700; }
+
+    .q-deadline {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--navy);
+      margin-top: 2px;
+    }
+
+    .q-mid {
+      width: 150px;
+      flex-shrink: 0;
+      text-align: right;
+    }
+
+    .q-right {
+      width: 150px;
+      flex-shrink: 0;
+      text-align: right;
+    }
+
+    .q-amount {
+      font-size: 18px;
+      font-weight: 400;
+      color: var(--navy);
+    }
+
+    .q-right .q-amount { font-weight: 700; }
+
+    .q-sublabel {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--muted);
+    }
+
+    /* Annual rows */
+    .annual-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .annual-row {
+      background: var(--gray-bg);
+      min-height: 70px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+    }
+
+    .a-label {
+      font-size: 18px;
+      font-weight: 400;
+      color: var(--navy);
+    }
+
+    .a-value {
+      font-size: 18px;
+      font-weight: 400;
+      color: var(--navy);
+      text-align: right;
+    }
+
+    .annual-row.total-row .a-label,
+    .annual-row.total-row .a-value {
+      font-weight: 700;
+    }
+
+    .annual-deadline {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    /* ─── Disclaimer ─────────────────────────────────────────────────────────── */
+    .disclaimer {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    /* ─── SVG icon helpers ───────────────────────────────────────────────────── */
+    .icon-40 { width: 40px; height: 40px; flex-shrink: 0; }
+    .icon-20 { width: 20px; height: 20px; flex-shrink: 0; }
+
+    /* ─── Responsive ─────────────────────────────────────────────────────────── */
+
+    /* Prevent horizontal scrollbar at any width */
+    body { overflow-x: hidden; }
+
+    /* Flex children: allow shrinking below their content width */
+    #input-panel, #result-panel { min-width: 0; }
+
+    @media (max-width: 1380px) {
+      .page-header { padding: 60px 60px 0; }
+      .main { padding: 40px 60px 60px; gap: 32px; }
+      #result-panel { width: 540px; }
+      #monthly-grid { gap: 60px; }
+    }
+
+    @media (max-width: 1200px) {
+      .page-header { padding: 48px 40px 0; }
+      .main { padding: 40px 40px 60px; gap: 24px; }
+      #result-panel { width: 460px; }
+      #monthly-grid { gap: 40px; }
+      /* Shrink quarterly columns to fit narrower right panel */
+      .q-left  { width: 190px; }
+      .q-mid, .q-right { width: 120px; }
+      .q-title, .q-amount { font-size: 15px; }
+      /* Tabs: smaller text so both pills fit on one row */
+      .tab-btn { font-size: 14px; padding: 10px 16px; }
+    }
+
+    @media (max-width: 960px) {
+      .page-header { padding: 40px 28px 0; }
+      .page-header h1 { font-size: 36px; }
+      .page-header p  { font-size: 16px; }
+      .main {
+        flex-direction: column;
+        padding: 28px 28px 48px;
+        gap: 24px;
+      }
+      #result-panel { width: 100%; }
+      #monthly-grid { gap: 32px; }
+      /* Restore quarterly column widths for full-width panel */
+      .q-left  { width: 240px; }
+      .q-mid, .q-right { width: 150px; }
+      .q-title, .q-amount { font-size: 18px; }
+      .tab-btn { font-size: 15px; padding: 10px 18px; }
+    }
+
+    @media (max-width: 640px) {
+      .page-header { padding: 32px 20px 0; }
+      .page-header h1 { font-size: 26px; }
+      .main { padding: 20px 20px 40px; }
+      #input-panel { padding: 28px 20px; }
+      #monthly-grid { flex-direction: column; gap: 0; }
+      .month-col { gap: 14px; }
+      .month-col + .month-col { margin-top: 14px; }
+      .input-wrapper { width: 100%; max-width: 260px; }
+      .q-left  { width: 170px; }
+      .q-mid, .q-right { width: 100px; }
+      .q-title, .q-amount, .a-label, .a-value { font-size: 14px; }
+      .tab-btn { font-size: 14px; padding: 9px 14px; }
+      .quarter-row { height: auto; min-height: 60px; }
     }
   </style>
 </head>
 <body>
 
-  <!-- ── Header ──────────────────────────────────────────────────────────── -->
-  <div class="header">
-    <h1>💸 VibeTax</h1>
-    <p>8% Tax Calculator for Filipino Freelancers</p>
-    <button class="more-info-btn" onclick="openModal()">
-      ℹ️ What is the 8% option?
-    </button>
-  </div>
+  <!-- ── Header ─────────────────────────────────────────────────────────────── -->
+  <header class="page-header">
+    <h1>calculate your tax with Freelipino</h1>
+    <p>for self-employed individuals and professionals under the 8% income tax option (BIR TRAIN Law). input your monthly earnings and we'll handle the math.</p>
+  </header>
 
-  <!-- ── Main ────────────────────────────────────────────────────────────── -->
-  <div class="container">
+  <!-- ── Main ───────────────────────────────────────────────────────────────── -->
+  <main class="main">
 
-    <!-- Monthly Income Inputs -->
-    <div class="card">
-      <div class="card-label">Monthly Gross Income</div>
-      <div class="monthly-grid" id="monthly-grid">
-        <!-- Injected by JS -->
+    <!-- LEFT: Input Panel -->
+    <div id="input-panel">
+      <p class="input-panel-intro">Input your monthly income in the boxes below:</p>
+
+      <div id="monthly-grid">
+
+        <!-- Column 1: January – June -->
+        <div class="month-col">
+          <div class="month-row">
+            <span class="month-label">January</span>
+            <div class="input-wrapper">
+              <span class="peso-sym">₱</span>
+              <input type="number" id="m0" min="0" step="1" oninput="onInputChange()" />
+            </div>
+          </div>
+          <div class="month-row">
+            <span class="month-label">February</span>
+            <div class="input-wrapper">
+              <span class="peso-sym">₱</span>
+              <input type="number" id="m1" min="0" step="1" oninput="onInputChange()" />
+            </div>
+          </div>
+          <div class="month-row">
+            <span class="month-label">March</span>
+            <div class="input-wrapper">
+              <span class="peso-sym">₱</span>
+              <input type="number" id="m2" min="0" step="1" oninput="onInputChange()" />
+            </div>
+          </div>
+          <div class="month-row">
+            <span class="month-label">April</span>
+            <div class="input-wrapper">
+              <span class="peso-sym">₱</span>
+              <input type="number" id="m3" min="0" step="1" oninput="onInputChange()" />
+            </div>
+          </div>
+          <div class="month-row">
+            <span class="month-label">May</span>
+            <div class="input-wrapper">
+              <span class="peso-sym">₱</span>
+              <input type="number" id="m4" min="0" step="1" oninput="onInputChange()" />
+            </div>
+          </div>
+          <div class="month-row">
+            <span class="month-label">June</span>
+            <div class="input-wrapper">
+              <span class="peso-sym">₱</span>
+              <input type="number" id="m5" min="0" step="1" oninput="onInputChange()" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Column 2: July – December -->
+        <div class="month-col">
+          <div class="month-row">
+            <span class="month-label">July</span>
+            <div class="input-wrapper">
+              <span class="peso-sym">₱</span>
+              <input type="number" id="m6" min="0" step="1" oninput="onInputChange()" />
+            </div>
+          </div>
+          <div class="month-row">
+            <span class="month-label">August</span>
+            <div class="input-wrapper">
+              <span class="peso-sym">₱</span>
+              <input type="number" id="m7" min="0" step="1" oninput="onInputChange()" />
+            </div>
+          </div>
+          <div class="month-row">
+            <span class="month-label">September</span>
+            <div class="input-wrapper">
+              <span class="peso-sym">₱</span>
+              <input type="number" id="m8" min="0" step="1" oninput="onInputChange()" />
+            </div>
+          </div>
+          <div class="month-row">
+            <span class="month-label">October</span>
+            <div class="input-wrapper">
+              <span class="peso-sym">₱</span>
+              <input type="number" id="m9" min="0" step="1" oninput="onInputChange()" />
+            </div>
+          </div>
+          <div class="month-row">
+            <span class="month-label">November</span>
+            <div class="input-wrapper">
+              <span class="peso-sym">₱</span>
+              <input type="number" id="m10" min="0" step="1" oninput="onInputChange()" />
+            </div>
+          </div>
+          <div class="month-row">
+            <span class="month-label">December</span>
+            <div class="input-wrapper">
+              <span class="peso-sym">₱</span>
+              <input type="number" id="m11" min="0" step="1" oninput="onInputChange()" />
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /#monthly-grid -->
+
+      <div class="actions">
+        <button class="btn-compute" onclick="compute()">compute taxes</button>
+        <button class="btn-reset"   onclick="resetForm()">reset</button>
       </div>
-      <button class="compute-btn" id="compute-btn" disabled onclick="compute()">
-        Compute My Tax
-      </button>
-    </div>
+    </div><!-- /#input-panel -->
 
-    <!-- Results (hidden until computed) -->
-    <div id="results"></div>
+    <!-- RIGHT: Result Panel -->
+    <div id="result-panel">
+      <div id="result-card">
+        <!-- Dynamically rendered by JS -->
+      </div>
+      <p class="disclaimer">
+        Disclaimer: This calculator is for estimation purposes only based on BIR computation methodology
+        and does not replace professional tax advice. This tool is intended for
+        <strong>non-VAT registered, purely self-employed individuals only</strong>.
+        It is <strong>not applicable to mixed income earners</strong> (those with both compensation
+        income and self-employment income). Consult a licensed tax professional or CPA for advice
+        specific to your situation.
+      </p>
+    </div><!-- /#result-panel -->
 
-    <!-- Disclaimer -->
-    <div class="disclaimer">
-      <strong>Disclaimer:</strong> This calculator is for estimation purposes only based on BIR computation methodology and does not replace professional tax advice.
-      This tool is intended for <strong>non-VAT registered, purely self-employed individuals only</strong>.
-      It is <strong>not applicable to mixed income earners</strong> (those with both compensation income and self-employment income).
-      Consult a licensed tax professional or CPA for advice specific to your situation.
-    </div>
+  </main>
 
-  </div>
-
-  <!-- ── "What is the 8% option?" Modal ──────────────────────────────────── -->
-  <div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
-    <div class="modal">
-      <h2>What is the 8% Income Tax Option?</h2>
-      <p>The <strong>8% flat tax</strong> is a simplified income tax option for self-employed individuals and professionals in the Philippines, introduced under the TRAIN Law (RA 10963).</p>
-      <p>Instead of paying graduated income tax <em>plus</em> percentage tax, you pay a flat rate of <strong>8% on all gross income above ₱250,000</strong> — with quarterly installments and an annual reconciliation.</p>
-      <p><strong>You may be eligible if you:</strong></p>
-      <ul>
-        <li>Are self-employed or a professional (freelancer, consultant, etc.)</li>
-        <li>Are <strong>not VAT-registered</strong></li>
-        <li>Earn <strong>purely from self-employment</strong> (no employer-employee relationship)</li>
-        <li>Have annual gross income of <strong>₱3,000,000 or less</strong></li>
-      </ul>
-      <p>This option must be elected at the start of the taxable year or when filing your first quarterly return (BIR Form 2551Q or 1701Q).</p>
-      <p class="modal-source">Source: BIR Revenue Regulations No. 8-2018. For informational purposes only — consult a tax professional for personalized advice.</p>
-      <button class="modal-close-btn" onclick="closeModal()">Got it</button>
-    </div>
-  </div>
-
-  <!-- ── Script ───────────────────────────────────────────────────────────── -->
+  <!-- ── Script ─────────────────────────────────────────────────────────────── -->
   <script>
-    // ─── Constants ───────────────────────────────────────────────────────────
+    // ─── Constants ────────────────────────────────────────────────────────────
     const MONTHS = [
       'January','February','March','April',
       'May','June','July','August',
-      'September','October','November','December'
+      'September','October','November','December',
     ];
 
     const QUARTERS = [
-      { label: 'Q1', months: [0, 1, 2],  deadlineStatic: 'On or before May 15'    },
-      { label: 'Q2', months: [3, 4, 5],  deadlineStatic: 'On or before August 15' },
-      { label: 'Q3', months: [6, 7, 8],  deadlineStatic: 'On or before November 15' },
-      { label: 'Q4', months: [9, 10, 11], deadlineStatic: null }, // dynamic year
+      { label: 'Q1', months: [0, 1, 2],   period: 'Jan–Mar', deadlineStatic: 'May 15'       },
+      { label: 'Q2', months: [3, 4, 5],   period: 'Apr–Jun', deadlineStatic: 'August 15'    },
+      { label: 'Q3', months: [6, 7, 8],   period: 'Jul–Sep', deadlineStatic: 'November 15'  },
+      { label: 'Q4', months: [9, 10, 11], period: 'Oct–Dec', deadlineStatic: null            },
     ];
 
     const DEDUCTION      = 250000;
     const TAX_RATE       = 0.08;
     const INCOME_CEILING = 3000000;
 
-    // ─── Build Input Grid ────────────────────────────────────────────────────
-    function buildGrid() {
-      const grid = document.getElementById('monthly-grid');
-      MONTHS.forEach((month, i) => {
-        const group = document.createElement('div');
-        group.className = 'input-group';
-        group.id = `group-${i}`;
-        group.innerHTML = `
-          <label for="m${i}">${month}</label>
-          <div class="input-wrapper">
-            <span class="currency-prefix">₱</span>
-            <input
-              type="number"
-              id="m${i}"
-              min="0"
-              step="1"
-              placeholder="0"
-              oninput="onInputChange()"
-            />
-          </div>
-          <span class="field-error" id="err-${i}"></span>
-        `;
-        grid.appendChild(group);
+    // ─── UI State ─────────────────────────────────────────────────────────────
+    let activeTab        = 'quarterly';
+    let lastComputedData = null;
+
+    // ─── Helpers ──────────────────────────────────────────────────────────────
+    function round2(n) {
+      return parseFloat(n.toFixed(2));
+    }
+
+    function peso(amount) {
+      return '₱ ' + amount.toLocaleString('en-PH', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
       });
     }
 
-    // ─── Input Change Handler ────────────────────────────────────────────────
+    // ─── Input Change ─────────────────────────────────────────────────────────
     function onInputChange() {
-      // Hide results whenever any field is edited after a compute
-      const results = document.getElementById('results');
-      if (results.innerHTML !== '') {
-        results.style.display = 'none';
-        results.innerHTML = '';
+      // Reset right panel back to initial whenever user edits after a computation
+      if (lastComputedData !== null) {
+        lastComputedData = null;
+        activeTab = 'quarterly';
+        renderInitialPanel();
       }
-      refreshComputeButton();
     }
 
-    function refreshComputeButton() {
-      const allFilled = MONTHS.every((_, i) => document.getElementById(`m${i}`).value.trim() !== '');
-      document.getElementById('compute-btn').disabled = !allFilled;
+    // ─── Reset ────────────────────────────────────────────────────────────────
+    function resetForm() {
+      MONTHS.forEach((_, i) => {
+        const el = document.getElementById('m' + i);
+        if (el) el.value = '';
+      });
+      lastComputedData = null;
+      activeTab = 'quarterly';
+      renderInitialPanel();
     }
 
-    // ─── Validation (runs on Compute click only) ─────────────────────────────
+    // ─── Validation ───────────────────────────────────────────────────────────
     function validate() {
       let valid = true;
       MONTHS.forEach((_, i) => {
-        const input    = document.getElementById(`m${i}`);
-        const errEl    = document.getElementById(`err-${i}`);
-        const raw      = input.value.trim();
-        const numVal   = Number(raw);
-
-        // Reset
-        input.classList.remove('input-error');
-        errEl.textContent = '';
-
-        if (raw === '') {
-          setFieldError(i, 'This field is required');
-          valid = false;
-        } else if (raw.includes('.') || !Number.isInteger(numVal)) {
-          setFieldError(i, 'Whole numbers only (no decimals)');
-          valid = false;
-        } else if (numVal < 0) {
-          setFieldError(i, 'Must be ₱0 or more');
+        const raw    = document.getElementById('m' + i).value.trim();
+        const numVal = Number(raw);
+        if (raw === '' || raw.includes('.') || !Number.isInteger(numVal) || numVal < 0) {
           valid = false;
         }
       });
       return valid;
     }
 
-    function setFieldError(i, msg) {
-      document.getElementById(`m${i}`).classList.add('input-error');
-      document.getElementById(`err-${i}`).textContent = msg;
-    }
-
-    function clearAllErrors() {
-      MONTHS.forEach((_, i) => {
-        document.getElementById(`m${i}`).classList.remove('input-error');
-        document.getElementById(`err-${i}`).textContent = '';
-      });
-    }
-
-    // ─── Core Computation ────────────────────────────────────────────────────
+    // ─── Core Computation ─────────────────────────────────────────────────────
     function compute() {
-      clearAllErrors();
-      if (!validate()) return;
+      if (!validate()) {
+        renderErrorPanel();
+        return;
+      }
 
-      // Collect monthly values
-      const monthly = MONTHS.map((_, i) => parseInt(document.getElementById(`m${i}`).value, 10));
+      // Collect monthly values (whole pesos)
+      const monthly = MONTHS.map((_, i) => parseInt(document.getElementById('m' + i).value, 10));
 
       // Annual gross
       const annualGross = monthly.reduce((a, b) => a + b, 0);
 
-      // Eligibility check
+      // Eligibility check: above ceiling → not eligible for 8%
       if (annualGross > INCOME_CEILING) {
-        renderNotEligible(annualGross);
+        renderNotEligiblePanel(annualGross);
         return;
       }
 
-      // Annual tax
+      // Annual computation
       const annualTaxable = Math.max(0, annualGross - DEDUCTION);
       const annualTaxDue  = round2(annualTaxable * TAX_RATE);
 
-      // Quarterly (cumulative) computation
+      // Cumulative quarterly computation
       let prevCumulativeTax = 0;
       const quarterData = QUARTERS.map(q => {
         const lastMonthIndex  = q.months[q.months.length - 1];
@@ -611,234 +809,199 @@
         const cumulativeTax   = round2(Math.max(0, cumulativeGross - DEDUCTION) * TAX_RATE);
         const taxPayable      = round2(cumulativeTax - prevCumulativeTax);
         prevCumulativeTax = cumulativeTax;
-        return { label: q.label, quarterlyGross, cumulativeGross, taxPayable, deadlineStatic: q.deadlineStatic };
+        return {
+          label: q.label,
+          period: q.period,
+          quarterlyGross,
+          cumulativeGross,
+          taxPayable,
+          deadlineStatic: q.deadlineStatic,
+        };
       });
 
-      // Q4 reconciliation: force Q4 to match annual exactly
+      // Q4 reconciliation: annual figure is authoritative; absorbs any rounding drift
       const sumQ1toQ3 = quarterData.slice(0, 3).reduce((s, q) => s + q.taxPayable, 0);
       quarterData[3].taxPayable = round2(annualTaxDue - sumQ1toQ3);
 
-      renderEligible(annualGross, annualTaxable, annualTaxDue, quarterData);
+      lastComputedData = { annualGross, annualTaxable, annualTaxDue, quarterData };
+      renderEligiblePanel(lastComputedData);
     }
 
-    // ─── Render: Not Eligible ────────────────────────────────────────────────
-    function renderNotEligible(annualGross) {
-      const results = document.getElementById('results');
-      results.innerHTML = `
-        <div class="card card-warning">
-          <div class="card-label">Eligibility Result</div>
-          <span class="badge badge-ineligible">❌ Not Eligible for 8% Tax Rate</span>
-          <div class="summary-row">
-            <span class="row-label">Total Annual Gross Income</span>
-            <span class="row-value">${peso(annualGross)}</span>
-          </div>
-          <p class="warning-explanation">
+    // ─── Panel Renderer Utilities ─────────────────────────────────────────────
+    function setResultCard(html) {
+      document.getElementById('result-card').innerHTML = html;
+    }
+
+    // ─── State 1: Initial ─────────────────────────────────────────────────────
+    function renderInitialPanel() {
+      setResultCard(`
+        <div class="panel-initial">
+          <svg class="icon-40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="20" cy="20" r="19" stroke="#5bb553" stroke-width="2"/>
+            <path d="M12 21L17.5 26.5L28 15" stroke="#5bb553" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <h2>Go ahead. Input your earnings.</h2>
+          <p>your information stays private<br>just enter what you earn and we'll handle the rest</p>
+        </div>
+      `);
+    }
+
+    // ─── State 4: Error ───────────────────────────────────────────────────────
+    function renderErrorPanel() {
+      setResultCard(`
+        <div class="panel-error">
+          <svg class="icon-40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="20" cy="20" r="19" stroke="#304258" stroke-width="2"/>
+            <text x="20" y="27" text-anchor="middle"
+              font-family="Nunito, sans-serif" font-size="20" font-weight="700" fill="#304258">?</text>
+          </svg>
+          <h2>Something went wrong</h2>
+          <p>ooops! we ran into an unexpected issue while processing this<br>please try again</p>
+        </div>
+      `);
+    }
+
+    // ─── State 3: Not Eligible ────────────────────────────────────────────────
+    function renderNotEligiblePanel(annualGross) {
+      setResultCard(`
+        <div class="panel-not-eligible">
+          <span class="party-emoji" aria-label="Celebration">🎉</span>
+          <h2>Nice work! You're above the 8% income threshold!</h2>
+          <p class="income-line">Total income: <strong>${peso(annualGross)}</strong></p>
+          <hr />
+          <p class="explanation">
             Your total annual gross income of <strong>${peso(annualGross)}</strong> exceeds the
-            <strong>₱3,000,000 ceiling</strong> required for the 8% flat tax option.
+            <strong>₱ 3,000,000</strong> ceiling for the 8% flat tax option. You may be subject
+            to graduated income tax rates instead.
           </p>
-          <div class="consult-tip">
-            💡 <strong>Next step:</strong> You may be subject to the graduated income tax rates.
-            Consult a licensed CPA or tax professional to determine your tax obligations.
+          <p class="consult-bold">
+            contact a professional tax adviser to ensure your results are accurate and compliant.
+          </p>
+        </div>
+      `);
+    }
+
+    // ─── State 2: Eligible (with tabs) ────────────────────────────────────────
+    function renderEligiblePanel(data) {
+      const bannerHtml = `
+        <div class="eligible-banner">
+          <div class="banner-title">
+            <svg class="icon-20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <circle cx="10" cy="10" r="9" stroke="#5bb553" stroke-width="1.5"/>
+              <path d="M6 10.5L8.5 13L14 7.5" stroke="#5bb553" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>You are eligible for the 8% tax rate!</span>
           </div>
+          <p class="banner-income">Total income: <strong>${peso(data.annualGross)}</strong></p>
         </div>
       `;
-      showResults();
+
+      const tabsHtml = `
+        <div class="tabs">
+          <button
+            class="tab-btn ${activeTab === 'quarterly' ? 'active' : 'inactive'}"
+            onclick="switchTab('quarterly')"
+          >quarterly tax summary</button>
+          <button
+            class="tab-btn ${activeTab === 'annual' ? 'active' : 'inactive'}"
+            onclick="switchTab('annual')"
+          >annual tax summary</button>
+        </div>
+      `;
+
+      const contentHtml = activeTab === 'quarterly'
+        ? renderQuarterlyContent(data.quarterData)
+        : renderAnnualContent(data);
+
+      setResultCard(`
+        <div class="panel-eligible">
+          ${bannerHtml}
+          <div class="tabs-section">
+            ${tabsHtml}
+            ${contentHtml}
+          </div>
+        </div>
+      `);
     }
 
-    // ─── Render: Eligible ────────────────────────────────────────────────────
-    function renderEligible(annualGross, annualTaxable, annualTaxDue, quarterData) {
-      const deductionApplies   = annualGross > DEDUCTION;
+    // ─── Quarterly Content ────────────────────────────────────────────────────
+    function renderQuarterlyContent(quarterData) {
       const annualDeadlineYear = new Date().getFullYear() + 1;
 
-      // Quarterly table rows
-      const qRows = quarterData.map(q => `
-        <tr>
-          <td>${q.label}</td>
-          <td>${peso(q.quarterlyGross)}</td>
-          <td>${peso(q.cumulativeGross)}</td>
-          <td class="td-tax">${peso(q.taxPayable)}</td>
-        </tr>
-      `).join('');
-
-      // Annual breakdown rows (deduction hidden if income ≤ ₱250k)
-      const annualRows = deductionApplies ? `
-        <div class="summary-row">
-          <span class="row-label">Annual Gross Income</span>
-          <span class="row-value">${peso(annualGross)}</span>
-        </div>
-        <div class="summary-row">
-          <span class="row-label">Less: ₱250,000 Deduction</span>
-          <span class="row-value deduct">− ${peso(DEDUCTION)}</span>
-        </div>
-        <div class="summary-row">
-          <span class="row-label">Taxable Income</span>
-          <span class="row-value">${peso(annualTaxable)}</span>
-        </div>
-        <div class="summary-row">
-          <span class="row-label">Annual Tax Due <small style="font-weight:400;color:#9ca3af;">(× 8%)</small></span>
-          <span class="row-value accent">${peso(annualTaxDue)}</span>
-        </div>
-      ` : `
-        <div class="summary-row">
-          <span class="row-label">Annual Gross Income</span>
-          <span class="row-value">${peso(annualGross)}</span>
-        </div>
-        <div class="summary-row">
-          <span class="row-label">Annual Tax Due</span>
-          <span class="row-value accent">₱0.00</span>
-        </div>
-      `;
-
-      // Deadline rows
-      const deadlineRows = quarterData.map((q, i) => {
-        const date = i < 3
-          ? q.deadlineStatic
-          : `On or before April 15, ${annualDeadlineYear}`;
+      const rows = quarterData.map((q, i) => {
+        const deadline = i < 3
+          ? `to be paid on or before ${q.deadlineStatic}`
+          : `to be paid on or before April 15, ${annualDeadlineYear}`;
         return `
-          <li class="deadline-item">
-            <span class="deadline-quarter">${q.label}${i === 3 ? ' (Annual)' : ''}</span>
-            <span class="deadline-date">${date}</span>
-          </li>
+          <div class="quarter-row">
+            <div class="q-left">
+              <div class="q-title"><strong>${q.label}</strong> (${q.period})</div>
+              <div class="q-deadline">${deadline}</div>
+            </div>
+            <div class="q-mid">
+              <div class="q-amount">${peso(q.quarterlyGross)}</div>
+              <div class="q-sublabel">income</div>
+            </div>
+            <div class="q-right">
+              <div class="q-amount">${peso(q.taxPayable)}</div>
+              <div class="q-sublabel">tax due</div>
+            </div>
+          </div>
         `;
       }).join('');
 
-      // Serialize quarter data for export (safe for inline onclick)
-      const exportPayload = encodeURIComponent(JSON.stringify({
-        quarterData, annualGross, annualTaxable, annualTaxDue, deductionApplies
-      }));
+      return `<div class="quarterly-rows">${rows}</div>`;
+    }
 
-      const results = document.getElementById('results');
-      results.innerHTML = `
+    // ─── Annual Content ───────────────────────────────────────────────────────
+    function renderAnnualContent(data) {
+      const annualDeadlineYear = new Date().getFullYear() + 1;
+      const deductionApplies   = data.annualGross > DEDUCTION;
 
-        <!-- Summary -->
-        <div class="card">
-          <div class="card-label">Eligibility Result</div>
-          <span class="badge badge-eligible">✅ Eligible for 8% Tax Rate</span>
-          <div class="summary-row">
-            <span class="row-label">Total Annual Gross Income</span>
-            <span class="row-value">${peso(annualGross)}</span>
-          </div>
+      const rowsHtml = deductionApplies ? `
+        <div class="annual-row">
+          <span class="a-label">annual income</span>
+          <span class="a-value">${peso(data.annualGross)}</span>
         </div>
-
-        <!-- Quarterly Breakdown -->
-        <div class="card">
-          <div class="card-label">Quarterly Breakdown</div>
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th>Quarter</th>
-                  <th>Qtrly Gross</th>
-                  <th>Cumulative Gross</th>
-                  <th>Tax Payable</th>
-                </tr>
-              </thead>
-              <tbody>${qRows}</tbody>
-            </table>
-          </div>
+        <div class="annual-row">
+          <span class="a-label">less: standard deduction</span>
+          <span class="a-value">− ${peso(DEDUCTION)}</span>
         </div>
-
-        <!-- Annual Breakdown -->
-        <div class="card">
-          <div class="card-label">Annual Breakdown</div>
-          ${annualRows}
+        <div class="annual-row">
+          <span class="a-label">taxable income</span>
+          <span class="a-value">${peso(data.annualTaxable)}</span>
         </div>
-
-        <!-- Filing Deadlines -->
-        <div class="card">
-          <div class="card-label">Tax Filing Deadlines</div>
-          <ul class="deadline-list">${deadlineRows}</ul>
+        <div class="annual-row total-row">
+          <span class="a-label">total tax due</span>
+          <span class="a-value">${peso(data.annualTaxDue)}</span>
         </div>
-
-        <!-- Export to CSV -->
-        <button class="export-btn" onclick="exportCSV('${exportPayload}')">
-          ⬇️ Export to CSV
-        </button>
+      ` : `
+        <div class="annual-row">
+          <span class="a-label">annual income</span>
+          <span class="a-value">${peso(data.annualGross)}</span>
+        </div>
+        <div class="annual-row total-row">
+          <span class="a-label">total tax due</span>
+          <span class="a-value">₱ 0.00</span>
+        </div>
       `;
 
-      showResults();
+      return `
+        <div class="annual-rows">${rowsHtml}</div>
+        <p class="annual-deadline">to be paid on or before April 15, ${annualDeadlineYear}</p>
+      `;
     }
 
-    // ─── Show Results ────────────────────────────────────────────────────────
-    function showResults() {
-      const results = document.getElementById('results');
-      results.style.display = 'block';
-      results.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-
-    // ─── Export to CSV ───────────────────────────────────────────────────────
-    function exportCSV(encodedPayload) {
-      const { quarterData, annualGross, annualTaxable, annualTaxDue, deductionApplies }
-        = JSON.parse(decodeURIComponent(encodedPayload));
-
-      const annualDeadlineYear = new Date().getFullYear() + 1;
-
-      const rows = [
-        ['VibeTax – 8% Tax Computation'],
-        [`Generated on: ${new Date().toLocaleDateString('en-PH', { year:'numeric', month:'long', day:'numeric' })}`],
-        [],
-        ['QUARTERLY BREAKDOWN'],
-        ['Quarter', 'Quarterly Gross Income (₱)', 'Cumulative Gross Income (₱)', 'Quarterly Tax Payable (₱)'],
-        ...quarterData.map(q => [q.label, q.quarterlyGross, q.cumulativeGross, q.taxPayable]),
-        [],
-        ['ANNUAL BREAKDOWN'],
-        ['Annual Gross Income (₱)', annualGross],
-        ...(deductionApplies
-          ? [
-              ['Less: ₱250,000 Deduction (₱)', -DEDUCTION],
-              ['Taxable Income (₱)', annualTaxable],
-            ]
-          : []),
-        ['Annual Tax Due @ 8% (₱)', annualTaxDue],
-        [],
-        ['TAX FILING DEADLINES'],
-        ['Q1', 'On or before May 15'],
-        ['Q2', 'On or before August 15'],
-        ['Q3', 'On or before November 15'],
-        [`Q4 (Annual)`, `On or before April 15, ${annualDeadlineYear}`],
-        [],
-        ['DISCLAIMER'],
-        ['This calculator is for estimation purposes only. It does not replace professional tax advice.'],
-        ['For non-VAT registered, purely self-employed individuals only.'],
-      ];
-
-      const csv    = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
-      const blob   = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url    = URL.createObjectURL(blob);
-      const link   = document.createElement('a');
-      link.href    = url;
-      link.download = `VibeTax_${new Date().getFullYear()}.csv`;
-      link.click();
-      URL.revokeObjectURL(url);
-    }
-
-    // ─── Modal ───────────────────────────────────────────────────────────────
-    function openModal() {
-      document.getElementById('modal-overlay').classList.add('open');
-    }
-
-    function closeModal() {
-      document.getElementById('modal-overlay').classList.remove('open');
-    }
-
-    function handleOverlayClick(e) {
-      if (e.target === document.getElementById('modal-overlay')) closeModal();
-    }
-
-    // ─── Helpers ─────────────────────────────────────────────────────────────
-    function round2(n) {
-      return parseFloat(n.toFixed(2));
-    }
-
-    function peso(amount) {
-      return '₱' + amount.toLocaleString('en-PH', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      });
+    // ─── Tab Switcher ─────────────────────────────────────────────────────────
+    function switchTab(tab) {
+      activeTab = tab;
+      if (lastComputedData) {
+        renderEligiblePanel(lastComputedData);
+      }
     }
 
     // ─── Boot ─────────────────────────────────────────────────────────────────
-    buildGrid();
+    renderInitialPanel();
   </script>
 
 </body>
